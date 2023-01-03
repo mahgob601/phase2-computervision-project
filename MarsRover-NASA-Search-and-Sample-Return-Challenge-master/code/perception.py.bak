@@ -203,7 +203,7 @@ def perception_step(Rover):
     warped = perspect_transform(img=img, src=src, dst=dst)
 
     # 3) Apply color threshold to identify navigable terrain/obstacles/rock samples
-    navigable = navigable_thresh(img=warped, rgb_thresh=(170, 170, 170)) #was 160 ,180
+    navigable = navigable_thresh(img=warped, rgb_thresh=(170, 170, 170)) #was 160
     obstacles = obstacle_thresh(img=warped, rgb_thresh=(100, 100, 100)) # was 140,120
     rock_samples = rock_thresh(img=warped)
      #ignor bad data 
