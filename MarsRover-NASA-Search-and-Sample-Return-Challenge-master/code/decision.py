@@ -24,11 +24,11 @@ def decision_step(Rover):
     offset = 0
     # Only apply left wall hugging when out of the starting point (after 10s)
     # to avoid getting stuck in a circle
-    if Rover.total_time > 20: #was 10, 13,20
+    if Rover.total_time > 18: #was 10 then 13
         # Steering proportional to the deviation results in
         # small offsets on straight lines and
         # large values in turns and open areas
-        offset = 0.7 * np.std(Rover.nav_angles) #was 0.8 , 0.7 
+        offset = 0.5 * np.std(Rover.nav_angles) #was 0.8
 
 
 
@@ -83,18 +83,18 @@ def decision_step(Rover):
                     Rover.sample_timer = time.time()
                     return Rover
                 avg_rock_angle = np.mean(Rover.rock_angle * 180/np.pi)
-                if -5 < avg_rock_angle < 15: #to be modify
+                if -5 < avg_rock_angle < 15:  
                     # Only drive straight for sample if it's within 13 deg
                     print('APPROACHING SAMPLE HEAD ON')
-                    if max(Rover.rock_dist) < 15: #20
+                    if max(Rover.rock_dist) < 13: #20 15 8 13
                         Rover.throttle = 0
                         Rover.brake = Rover.brake_set
                         Rover.steer = avg_rock_angle
                     else:
                         # Set throttle at half normal speed during approach
                         Rover.throttle = Rover.throttle_set
-                        Rover.steer = avg_rock_angle
-                elif -50 < avg_rock_angle < 50:
+                        Rover.steer = avg_rock_angle/2
+                elif 0 < avg_rock_angle < 50:
                     print('ROTATING TO SAMPLE: ', avg_rock_angle)
                     if Rover.vel > 0 and max(Rover.rock_dist) < 40: #50
                         Rover.throttle = 0
@@ -103,7 +103,7 @@ def decision_step(Rover):
                     else:
                         Rover.throttle = 0
                         Rover.brake = 0
-                        Rover.steer = avg_rock_angle/4 #avg_rock_angle/6
+                        Rover.steer = avg_rock_angle/6 #avg_rock_angle/6 then 4
                 else:
                     # Keep the logic simple and ignore samples +/-13 degrees
                     print('LOST SIGHT OF THE SAMPLE')
