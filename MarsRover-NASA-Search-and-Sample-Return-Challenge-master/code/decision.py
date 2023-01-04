@@ -24,7 +24,7 @@ def decision_step(Rover):
     offset = 0
     # Only apply left wall hugging when out of the starting point (after 10s)
     # to avoid getting stuck in a circle
-    if Rover.total_time > 18: #was 10 then 13
+    if Rover.total_time > 13: #was 10
         # Steering proportional to the deviation results in
         # small offsets on straight lines and
         # large values in turns and open areas
@@ -61,6 +61,10 @@ def decision_step(Rover):
         # Check for Rover.mode status
         if Rover.mode == 'forward': 
             # Check the extent of navigable terrain
+            if Rover.steer <=5 or Rover.steer >= -5:
+                Rover.count=0
+            else:
+                Rover.count+=1
             if Rover.vel < 0.2 and Rover.throttle != 0:
                 # If the velocity is still 0 after throttle, it's stuck
                 if time.time() - Rover.stuck_time > Rover.max_stuck:
@@ -83,18 +87,18 @@ def decision_step(Rover):
                     Rover.sample_timer = time.time()
                     return Rover
                 avg_rock_angle = np.mean(Rover.rock_angle * 180/np.pi)
-                if -5 < avg_rock_angle < 15:  
+                if -5 < avg_rock_angle < 15: #to be modify
                     # Only drive straight for sample if it's within 13 deg
                     print('APPROACHING SAMPLE HEAD ON')
-                    if max(Rover.rock_dist) < 13: #20 15 8 13
+                    if max(Rover.rock_dist) < 15: #20
                         Rover.throttle = 0
                         Rover.brake = Rover.brake_set
                         Rover.steer = avg_rock_angle
                     else:
                         # Set throttle at half normal speed during approach
                         Rover.throttle = Rover.throttle_set
-                        Rover.steer = avg_rock_angle/2
-                elif 0 < avg_rock_angle < 50:
+                        Rover.steer = avg_rock_angle
+                elif -50 < avg_rock_angle < 50:
                     print('ROTATING TO SAMPLE: ', avg_rock_angle)
                     if Rover.vel > 0 and max(Rover.rock_dist) < 40: #50
                         Rover.throttle = 0
@@ -103,13 +107,13 @@ def decision_step(Rover):
                     else:
                         Rover.throttle = 0
                         Rover.brake = 0
-                        Rover.steer = avg_rock_angle/6 #avg_rock_angle/6 then 4
+                        Rover.steer = avg_rock_angle/6 #avg_rock_angle/6
                 else:
                     # Keep the logic simple and ignore samples +/-13 degrees
                     print('LOST SIGHT OF THE SAMPLE')
                     Rover.sample_seen = False
             #elif max(Rover.nav_dists) >= Rover.stop_forward and len(Rover.nav_angles) > 50:  
-            elif len(Rover.nav_angles) >  Rover.go_forward and max(Rover.nav_dists) >= Rover.stop_forwardDist:    #was Rover.go_forwardDist: didn;t checked  
+            elif len(Rover.nav_angles) >=  Rover.stop_forward and max(Rover.nav_dists) >= Rover.stop_forwardDist:    #was Rover.go_forwardDist: didn;t checked  
                 # If mode is forward, navigable terrain looks good 
                 # and velocity is below max, then throttle 
                 if Rover.vel < Rover.max_vel:
@@ -121,7 +125,7 @@ def decision_step(Rover):
                 # Set steering to average angle clipped to the range +/- 15
                 
                 #Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi),-15, 15)  needs to be changed
-                Rover.steer = np.clip(np.mean((Rover.nav_angles+offset) * 180 / np.pi), -15, 15)
+                Rover.steer = np.clip(np.mean((Rover.nav_angles+offset) * 180 / np.pi), -10, 10)
             # If there's a lack of navigable terrain pixels then go to 'stop' mode
             else:
                 # Set mode to "stop" and hit the brakes!
@@ -130,7 +134,7 @@ def decision_step(Rover):
                 if Rover.vel > 0:
                     Rover.brake = Rover.brake_set
                 Rover.brake = 0;
-                Rover.steer = -15 # was 0
+                Rover.steer = 0# was 0
                 Rover.mode = 'stop'
 
         # If we're already in "stop" mode then make different decisions
@@ -167,6 +171,11 @@ def decision_step(Rover):
                     # Set steer to mean angle + offset
                     Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi) + offset,-15, 15) # modified
                     Rover.mode = 'forward'
+        elif Rover.mode =='looping':
+            Rover.count = 0
+            Rover.throttle = 0
+            Rover.steer =0
+            Rover.mode ='forward'
     # Just to make the rover do something even if no modifications have been
     #    made to the code
     else:
