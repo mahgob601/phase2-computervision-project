@@ -66,7 +66,7 @@ class RoverState():
         self.go_forward = 200 # Threshold to go forward again was 81 then 50 then 200,100
         self.go_forwardDist = 30
         self.stop_forwardDist = 20
-        self.max_vel = 2  
+        self.max_vel = 1.5# was 2  
         self.brake_set = 2 # B# Maximum velocity=5 (meters/second)
         # Image output from perception step
         # Update this image to display your intermediate analysis steps

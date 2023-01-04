@@ -24,11 +24,11 @@ def decision_step(Rover):
     offset = 0
     # Only apply left wall hugging when out of the starting point (after 10s)
     # to avoid getting stuck in a circle
-    if Rover.total_time > 13: #was 10
+    if Rover.total_time > 20: #was 10, 13,20
         # Steering proportional to the deviation results in
         # small offsets on straight lines and
         # large values in turns and open areas
-        offset = 0.5 * np.std(Rover.nav_angles) #was 0.8
+        offset = 0.7 * np.std(Rover.nav_angles) #was 0.8 , 0.7 
 
 
 
