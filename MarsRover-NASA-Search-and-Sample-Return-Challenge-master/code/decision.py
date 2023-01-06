@@ -158,7 +158,7 @@ def decision_step(Rover):
                     
                     Rover.throttle = Rover.throttle_set
                     Rover.brake = 0
-                    Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi) + offset,-15, 15) # modified
+                    Rover.steer = np.clip(np.mean((Rover.nav_angles+ offset) * 180/np.pi),-15, 15) # modified
                     Rover.mode = 'forward'
         elif Rover.mode =='looping':
             Rover.count = 0
